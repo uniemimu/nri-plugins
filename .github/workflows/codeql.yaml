@@ -1,0 +1,11 @@
+name: Run CodeQL Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  codeql:
+    permissions:
+      contents: read
+      security-events: write
+    uses: "./.github/workflows/common-codeql.yaml"
