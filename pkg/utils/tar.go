@@ -64,13 +64,17 @@ func UncompressTbz2(archive string, dir string) error {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// Create a directory.
-			err = os.MkdirAll(targetPath, 0755)
+			err = os.MkdirAll(targetAbs, 0755)
 			if err != nil {
 				return err
 			}
 		case tar.TypeReg:
 			// Create a regular file.
-			targetFile, err := os.Create(targetPath)
+			err = os.MkdirAll(filepath.Dir(targetAbs), 0755)
+			if err != nil {
+				return err
+			}
+			targetFile, err := os.Create(targetAbs)
 			if err != nil {
 				return err
 			}
@@ -82,11 +86,11 @@ func UncompressTbz2(archive string, dir string) error {
 			}
 		case tar.TypeSymlink:
 			// Create a symlink and all the directories it needs.
-			err = os.MkdirAll(filepath.Dir(targetPath), 0755)
+			err = os.MkdirAll(filepath.Dir(targetAbs), 0755)
 			if err != nil {
 				return err
 			}
-			err := os.Symlink(header.Linkname, targetPath)
+			err := os.Symlink(header.Linkname, targetAbs)
 			if err != nil {
 				return err
 			}
