@@ -259,38 +259,70 @@ func parseValueList(str, sep string, valuep interface{}) error {
 			value = val
 
 		case []int, []int8, []int16, []int32, []int64:
-			v, err := strconv.ParseInt(s, 0, 0)
-			if err != nil {
-				return fmt.Errorf("invalid entry '%s': %w", s, err)
-			}
 			switch val := value.(type) {
 			case []int:
+				v, err := strconv.ParseInt(s, 0, strconv.IntSize)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, int(v))
 			case []int8:
+				v, err := strconv.ParseInt(s, 0, 8)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, int8(v))
 			case []int16:
+				v, err := strconv.ParseInt(s, 0, 16)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, int16(v))
 			case []int32:
+				v, err := strconv.ParseInt(s, 0, 32)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, int32(v))
 			case []int64:
+				v, err := strconv.ParseInt(s, 0, 64)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, v)
 			}
 
 		case []uint, []uint8, []uint16, []uint32, []uint64:
-			v, err := strconv.ParseUint(s, 0, 0)
-			if err != nil {
-				return fmt.Errorf("invalid entry '%s': %w", s, err)
-			}
 			switch val := value.(type) {
 			case []uint:
+				v, err := strconv.ParseUint(s, 0, strconv.IntSize)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, uint(v))
 			case []uint8:
+				v, err := strconv.ParseUint(s, 0, 8)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, uint8(v))
 			case []uint16:
+				v, err := strconv.ParseUint(s, 0, 16)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, uint16(v))
 			case []uint32:
+				v, err := strconv.ParseUint(s, 0, 32)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, uint32(v))
 			case []uint64:
+				v, err := strconv.ParseUint(s, 0, 64)
+				if err != nil {
+					return fmt.Errorf("invalid entry '%s': %w", s, err)
+				}
 				value = append(val, v)
 			}
 		}
