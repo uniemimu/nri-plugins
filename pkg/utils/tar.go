@@ -90,7 +90,25 @@ func UncompressTbz2(archive string, dir string) error {
 			if err != nil {
 				return err
 			}
-			err := os.Symlink(header.Linkname, targetAbs)
+
+			// Validate link target so it cannot escape extraction root.
+			if filepath.IsAbs(header.Linkname) {
+				return fmt.Errorf("invalid symlink target path: %s", header.Linkname)
+			}
+
+			resolvedParentDir, err := filepath.EvalSymlinks(filepath.Dir(targetAbs))
+			if err != nil {
+				return err
+			}
+			linkTargetAbs, err := filepath.Abs(filepath.Join(resolvedParentDir, header.Linkname))
+			if err != nil {
+				return err
+			}
+			if linkTargetAbs != rootAbs && !strings.HasPrefix(linkTargetAbs, rootAbs+string(os.PathSeparator)) {
+				return fmt.Errorf("invalid symlink target path: %s", header.Linkname)
+			}
+
+			err = os.Symlink(header.Linkname, targetAbs)
 			if err != nil {
 				return err
 			}
