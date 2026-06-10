@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -48,7 +47,12 @@ func UncompressTbz2(archive string, dir string) error {
 			return err
 		}
 
-		targetPath := path.Join(dir, header.Name)
+		cleanName := filepath.Clean(header.Name)
+		if filepath.IsAbs(cleanName) || cleanName == ".." || strings.HasPrefix(cleanName, ".."+string(os.PathSeparator)) {
+			return fmt.Errorf("invalid archive entry path: %s", header.Name)
+		}
+
+		targetPath := filepath.Join(dir, cleanName)
 		targetAbs, err := filepath.Abs(targetPath)
 		if err != nil {
 			return err
@@ -78,7 +82,7 @@ func UncompressTbz2(archive string, dir string) error {
 			}
 		case tar.TypeSymlink:
 			// Create a symlink and all the directories it needs.
-			err = os.MkdirAll(path.Dir(targetPath), 0755)
+			err = os.MkdirAll(filepath.Dir(targetPath), 0755)
 			if err != nil {
 				return err
 			}
