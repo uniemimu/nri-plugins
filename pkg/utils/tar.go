@@ -17,9 +17,12 @@ package utils
 import (
 	"archive/tar"
 	"compress/bzip2"
+	"fmt"
 	"io"
 	"os"
 	"path"
+	"path/filepath"
+	"strings"
 )
 
 func UncompressTbz2(archive string, dir string) error {
@@ -28,6 +31,11 @@ func UncompressTbz2(archive string, dir string) error {
 		return err
 	}
 	defer file.Close() // nolint:errcheck
+
+	rootAbs, err := filepath.Abs(dir)
+	if err != nil {
+		return err
+	}
 
 	data := bzip2.NewReader(file)
 	tr := tar.NewReader(data)
@@ -39,16 +47,26 @@ func UncompressTbz2(archive string, dir string) error {
 			}
 			return err
 		}
+
+		targetPath := path.Join(dir, header.Name)
+		targetAbs, err := filepath.Abs(targetPath)
+		if err != nil {
+			return err
+		}
+		if targetAbs != rootAbs && !strings.HasPrefix(targetAbs, rootAbs+string(os.PathSeparator)) {
+			return fmt.Errorf("invalid archive entry path: %s", header.Name)
+		}
+
 		switch header.Typeflag {
 		case tar.TypeDir:
 			// Create a directory.
-			err = os.MkdirAll(path.Join(dir, header.Name), 0755)
+			err = os.MkdirAll(targetPath, 0755)
 			if err != nil {
 				return err
 			}
 		case tar.TypeReg:
 			// Create a regular file.
-			targetFile, err := os.Create(path.Join(dir, header.Name))
+			targetFile, err := os.Create(targetPath)
 			if err != nil {
 				return err
 			}
@@ -60,11 +78,11 @@ func UncompressTbz2(archive string, dir string) error {
 			}
 		case tar.TypeSymlink:
 			// Create a symlink and all the directories it needs.
-			err = os.MkdirAll(path.Dir(path.Join(dir, header.Name)), 0755)
+			err = os.MkdirAll(path.Dir(targetPath), 0755)
 			if err != nil {
 				return err
 			}
-			err := os.Symlink(header.Linkname, path.Join(dir, header.Name))
+			err := os.Symlink(header.Linkname, targetPath)
 			if err != nil {
 				return err
 			}
