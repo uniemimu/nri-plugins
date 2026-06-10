@@ -24,6 +24,15 @@ import (
 	"strings"
 )
 
+func isUnsafeArchivePath(name string) bool {
+	cleanName := filepath.Clean(name)
+	return cleanName == "." ||
+		cleanName == ".." ||
+		filepath.IsAbs(cleanName) ||
+		strings.HasPrefix(cleanName, ".."+string(os.PathSeparator)) ||
+		strings.Contains(cleanName, string(os.PathSeparator)+".."+string(os.PathSeparator))
+}
+
 func UncompressTbz2(archive string, dir string) error {
 	file, err := os.Open(archive)
 	if err != nil {
@@ -47,10 +56,10 @@ func UncompressTbz2(archive string, dir string) error {
 			return err
 		}
 
-		cleanName := filepath.Clean(header.Name)
-		if filepath.IsAbs(cleanName) || cleanName == ".." || strings.HasPrefix(cleanName, ".."+string(os.PathSeparator)) {
+		if isUnsafeArchivePath(header.Name) {
 			return fmt.Errorf("invalid archive entry path: %s", header.Name)
 		}
+		cleanName := filepath.Clean(header.Name)
 
 		targetPath := filepath.Join(dir, cleanName)
 		targetAbs, err := filepath.Abs(targetPath)
@@ -86,6 +95,9 @@ func UncompressTbz2(archive string, dir string) error {
 			}
 		case tar.TypeSymlink:
 			// Create a symlink and all the directories it needs.
+			if isUnsafeArchivePath(header.Linkname) {
+				return fmt.Errorf("invalid archive symlink target: %s", header.Linkname)
+			}
 			err = os.MkdirAll(filepath.Dir(targetAbs), 0755)
 			if err != nil {
 				return err
