@@ -158,24 +158,40 @@ func parseValue(str string, value interface{}) error {
 	case *string:
 		*value = str
 
-	case *int, *int8, *int16, *int32, *int64:
+	case *int:
 		v, err := strconv.ParseInt(str, 0, 0)
 		if err != nil {
 			return fmt.Errorf("invalid entry '%s': %w", str, err)
 		}
+		*value = int(v)
 
-		switch value := value.(type) {
-		case *int:
-			*value = int(v)
-		case *int8:
-			*value = int8(v)
-		case *int16:
-			*value = int16(v)
-		case *int32:
-			*value = int32(v)
-		case *int64:
-			*value = v
+	case *int8:
+		v, err := strconv.ParseInt(str, 0, 8)
+		if err != nil {
+			return fmt.Errorf("invalid entry '%s': %w", str, err)
 		}
+		*value = int8(v)
+
+	case *int16:
+		v, err := strconv.ParseInt(str, 0, 16)
+		if err != nil {
+			return fmt.Errorf("invalid entry '%s': %w", str, err)
+		}
+		*value = int16(v)
+
+	case *int32:
+		v, err := strconv.ParseInt(str, 0, 32)
+		if err != nil {
+			return fmt.Errorf("invalid entry '%s': %w", str, err)
+		}
+		*value = int32(v)
+
+	case *int64:
+		v, err := strconv.ParseInt(str, 0, 64)
+		if err != nil {
+			return fmt.Errorf("invalid entry '%s': %w", str, err)
+		}
+		*value = v
 
 	case *uint:
 		v, err := strconv.ParseUint(str, 0, 0)
