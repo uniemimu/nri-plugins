@@ -3,7 +3,6 @@ name: Verify
 on:
   push:
     branches:
-      - main
       - "release-*"
       - "test/**"
   pull_request:
