@@ -177,24 +177,40 @@ func parseValue(str string, value interface{}) error {
 			*value = v
 		}
 
-	case *uint, *uint8, *uint16, *uint32, *uint64:
+	case *uint:
 		v, err := strconv.ParseUint(str, 0, 0)
 		if err != nil {
 			return fmt.Errorf("invalid entry: '%s': %w", str, err)
 		}
+		*value = uint(v)
 
-		switch value := value.(type) {
-		case *uint:
-			*value = uint(v)
-		case *uint8:
-			*value = uint8(v)
-		case *uint16:
-			*value = uint16(v)
-		case *uint32:
-			*value = uint32(v)
-		case *uint64:
-			*value = v
+	case *uint8:
+		v, err := strconv.ParseUint(str, 0, 8)
+		if err != nil {
+			return fmt.Errorf("invalid entry: '%s': %w", str, err)
 		}
+		*value = uint8(v)
+
+	case *uint16:
+		v, err := strconv.ParseUint(str, 0, 16)
+		if err != nil {
+			return fmt.Errorf("invalid entry: '%s': %w", str, err)
+		}
+		*value = uint16(v)
+
+	case *uint32:
+		v, err := strconv.ParseUint(str, 0, 32)
+		if err != nil {
+			return fmt.Errorf("invalid entry: '%s': %w", str, err)
+		}
+		*value = uint32(v)
+
+	case *uint64:
+		v, err := strconv.ParseUint(str, 0, 64)
+		if err != nil {
+			return fmt.Errorf("invalid entry: '%s': %w", str, err)
+		}
+		*value = v
 	}
 
 	return nil
