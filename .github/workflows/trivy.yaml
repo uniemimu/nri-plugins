@@ -1,0 +1,13 @@
+name: Manually Run Trivy Analysis
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trivy:
+    permissions:
+      contents: read
+      security-events: write
+    uses: "./.github/workflows/common-trivy.yaml"
+    with:
+      export-csv: true
